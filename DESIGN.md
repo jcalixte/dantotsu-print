@@ -363,7 +363,7 @@ _Pipeline stages resolved so far; printer/transport (F4) and F3's preview mechan
   - **F1** Minimise capture effort  _↓ ≤1 gesture, ≤10 s_
     - **How (chosen):** one **CLI engine** invoked by a **per-editor keystroke** that pipes the selection and passes `--file`/`--lines` (Vim map, JetBrains External Tool, VS Code/Cursor keybinding→task). **Xcode:** clipboard-only fallback, no line numbers. _Chosen over a per-editor extension — see T1._
   - **F2** Fidelity & legibility  _↑_
-    - **How (chosen):** CLI renders selection → image via its own tokenizer (tree-sitter / `silicon`-class), sized to the 90×85 mm cell. Monospace makes fit a deterministic **character budget** (~48 cols × ~19 rows at 8 pt after margins + footer); the CLI flags selections that exceed it. Font picked for legibility at the printer's DPI (label ≈ 300 dpi).
+    - **How (chosen):** CLI renders selection → image via its own tokenizer (tree-sitter / `silicon`-class), sized to the 90×85 mm cell. Monospace makes fit a deterministic **character budget** (~48 cols × ~19 rows at 8 pt after margins + footer); the CLI flags selections that exceed it. Font picked for legibility at the printer's DPI (label ≈ 300 dpi). The defect itself is **marked** on the card — one or more character-precise spans (box / bold / highlight / underline), sourced from the editor selection(s); see [SPEC.md](./SPEC.md).
   - **F3** Scope to the cell  _→_
     - **How (chosen):** F3a — CLI renders the real card **at exact cell size (90×85 mm), cell boundary drawn**, and previews it: **inline** in graphics-capable terminals (iTerm2 / Kitty / **Ghostty** / WezTerm / VS Code-Cursor sixel), or as a **text-grid** (code clamped to the ~48-col budget — instant, no graphics needed), or the PNG opened in the OS viewer. Overflow spills past the border → F2's "flag, don't shrink" made visual. Confirm-to-print; `-y` skips. WYSIWYG because the preview *is* the print artifact.
 - **G3** Traceable to source  _W:6_
@@ -413,7 +413,7 @@ The second house: Functions (HOWs) become the WHATs, realised by concrete compon
 | C1  | `dp` CLI engine — **Rust, `clap`** (capture stdin+`--file`/`--lines`, render, preview, emit) | ADR-0001, ADR-0003 |
 | C2  | Per-editor keystroke shims (Vim / JetBrains / VS Code·Cursor; Xcode clipboard) | ADR-0001 |
 | C3  | Tokenizing renderer — **`syntect`/`silicon`-class → mono PNG at cell size**, `viuer` inline preview | ADR-0003 |
-| C4  | Central print service — **Python / `brother_ql`** (board→printer registry, queue, status, router) | ADR-0002 |
+| C4  | Central print service — **Python / `brother_ql`** (board→printer registry, queue, status, router) | ADR-0002, ADR-0004 |
 | C5  | Networked label printer — Brother QL-1110NWB, per board                    | ADR-0002 |
 | C6  | Board registry / config (`--board`, per-repo/dev default)                 | ADR-0002 |
 
@@ -450,6 +450,7 @@ Ranked from §4 importance and §5 conflicts. `If we miss it` is mandatory — a
 | T3  | **Peel-stick label** (wide networked QL-1110NWB, removable), over magnet and over receipt+glue | bonded → no fall/misfile (G1 trust); zero manual step (F1); no ink (F4); CLI-driven via `brother_ql` | ~€9k/50 + recurring label rolls; wide model needed for width | — |
 | T4  | **T-B central service + networked printers**, over direct (T-A) / corporate CUPS (T-C) | central board→printer registry, retries, print/label status, `--board` routing, home for the F5 redirector; no per-board Pi to patch | a small service to run + maintain; single point of failure if down | ADR-0002 |
 | T5  | **Rust plain CLI**, over TS/Node and Gleam, no TUI framework | single-binary distribution to the polyglot fleet (F4); best-fit code→PNG ecosystem; no TUI machinery on the fire-and-exit path | Rust-comfortable maintainers required; interactive trim deferred to a scoped ratatui mode | ADR-0003 |
+| T6  | **C4 in Python (FastAPI + `brother_ql`)**, over Node/Hono, Deno/Oak, Gleam | native, battle-tested QL raster driver; one runtime; zero glue | Python in a TS-heavy shop; a second language beside the Rust CLI (clean HTTP boundary) | ADR-0004 |
 
 ### Tensions being watched (unresolved by design)
 
