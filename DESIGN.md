@@ -429,6 +429,375 @@ Function → Component strength (9/3/1/blank):
 
 _F5's deferred SSO short-link redirector would later attach to **C4**._
 
+### House 2 — Functions × Components
+
+Functions (House 1's HOWs) are now the WHATs, down the left with their carried-down
+weights; components are the HOWs across the top. Roof = component↔component
+correlation; basement = per-component target, build difficulty, and weight.
+
+<!-- Self-contained: this ```tikz fence compiles independently, so it repeats
+     House 1's template preamble verbatim; only the overrides + body below differ. -->
+
+```tikz
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, shapes.misc, calc, fit, backgrounds}
+
+% Toggles
+\newif\ifqfdshowroof          \qfdshowrooftrue
+\newif\ifqfdshowbasement      \qfdshowbasementtrue
+\newif\ifqfdshowcompetitive   \qfdshowcompetitivetrue
+\newif\ifqfdshowlegend        \qfdshowlegendtrue
+\newif\ifqfdshowimportance    \qfdshowimportancetrue
+\newif\ifqfdshowcorrlegend    \qfdshowcorrlegendtrue
+\newif\ifqfdshowevallegend    \qfdshowevallegendtrue
+\newif\ifqfdshowtitle         \qfdshowtitletrue
+
+% Dimensions
+\def\qfdNW{5}
+\def\qfdNH{5}
+\def\qfdWhatW{4.0}
+\def\qfdImpW{0.9}
+\def\qfdCmpW{3}
+\def\qfdHdrH{2.6}
+\def\qfdBasementN{4}
+
+% Titles & labels
+\def\qfdWhatsTitle{Customer needs}
+\def\qfdImpTitle{Imp.\ \%}
+\def\qfdPerceptionTitle{Comparative evaluation}
+\def\qfdPoorLabel{poor}
+\def\qfdExcellentLabel{excellent}
+\def\qfdAltOneLabel{Our product}
+\def\qfdAltTwoLabel{Competitor A}
+\def\qfdAltThreeLabel{Competitor B}
+\def\qfdRelTitle{Relation}
+\def\qfdCorrTitle{Correlation}
+\def\qfdEvalTitle{Evaluation}
+
+\def\qfdProjectTitle{}
+\def\qfdConcept{}
+
+% Styles
+\tikzset{
+  qfdthin/.style ={line width=0.35pt},
+  qfdmed/.style  ={line width=0.7pt},
+  qfdstrong/.style={circle, draw, fill=black,
+                    minimum size=7pt, inner sep=0pt},
+  qfdmod/.style  ={circle, draw,
+                    minimum size=7pt, inner sep=0pt, line width=0.8pt},
+  qfdweak/.style ={regular polygon, regular polygon sides=3, draw,
+                    minimum size=8.5pt, inner sep=0pt, line width=0.7pt},
+  qfdrel/.is choice,
+  qfdrel/S/.style={qfdstrong},
+  qfdrel/M/.style={qfdmod},
+  qfdrel/W/.style={qfdweak},
+  qfdalt1mk/.style={circle, draw, fill=black,
+                    minimum size=6pt, inner sep=0pt, line width=1pt},
+  qfdalt1ln/.style={line width=1.2pt},
+  qfdalt2mk/.style={regular polygon, regular polygon sides=3, draw,
+                    fill=black, minimum size=6pt, inner sep=0pt,
+                    line width=0.7pt},
+  qfdalt2ln/.style={line width=0.7pt, dashed},
+  qfdalt3mk/.style={rectangle, draw, fill=black,
+                    minimum size=5pt, inner sep=0pt, line width=0.7pt},
+  qfdalt3ln/.style={line width=0.7pt, dotted},
+}
+
+\newcommand{\qfdDrawGrid}{%
+  \foreach \c in {1,...,\qfdNHm} \draw[qfdthin] (\c, 0) -- (\c, -\qfdNW);
+  \foreach \r in {1,...,\qfdNWm} \draw[qfdthin] (0, -\r) -- (\qfdNH, -\r);
+  \foreach \r in {1,...,\qfdNWm}
+    \draw[qfdthin] (\qfdLeftEdge, -\r) -- (0, -\r);
+  \ifqfdshowroof
+    \foreach \c in {1,...,\qfdNHm}
+      \draw[qfdthin] (\c, 0) -- (\c, \qfdHdrH);
+  \fi
+  \ifqfdshowcompetitive
+    \foreach \r in {1,...,\qfdNWm}
+      \draw[qfdthin] (\qfdNH, -\r) -- (\qfdNH+\qfdCmpW, -\r);
+  \fi
+  \ifqfdshowbasement
+    \foreach \r in {1,...,\qfdBasementN}
+      \draw[qfdthin] (0, -\qfdNW-\r) -- (\qfdNH, -\qfdNW-\r);
+    \foreach \c in {1,...,\qfdNHm}
+      \draw[qfdthin] (\c, -\qfdNW) -- (\c, -\qfdNW-\qfdBasementN);
+  \fi
+}
+
+\newcommand{\qfdDrawRoof}{%
+  \ifqfdshowroof
+    \foreach \k in {1,...,\qfdNHm} {%
+      \pgfmathsetmacro{\rx}{(\k+\qfdNH)/2}
+      \pgfmathsetmacro{\ry}{\qfdHdrH + (\qfdNH-\k)/2}
+      \pgfmathsetmacro{\lx}{\k/2}
+      \pgfmathsetmacro{\ly}{\qfdHdrH + \k/2}
+      \draw[qfdthin] (\k, \qfdHdrH) -- (\rx, \ry);
+      \draw[qfdthin] (\k, \qfdHdrH) -- (\lx, \ly);
+    }%
+    \draw[qfdmed] (0, \qfdHdrH)
+       -- (\qfdNH/2, \qfdApexY) -- (\qfdNH, \qfdHdrH);
+    \foreach \i in {1,...,\qfdNH}
+      \foreach \k in {1,...,\qfdNH} {%
+        \pgfmathtruncatemacro{\jj}{\i+\k}
+        \ifnum\jj>\qfdNH\relax\else
+          \pgfmathsetmacro{\xx}{\i + \k/2 - 0.5}
+          \pgfmathsetmacro{\yy}{\qfdHdrH + \k/2}
+          \coordinate (C-\i-\jj) at (\xx, \yy);
+        \fi
+      }%
+  \fi
+}
+
+\newcommand{\qfdDrawScale}{%
+  \ifqfdshowcompetitive
+    \foreach \tk in {0,1,2,3,4,5} {%
+      \pgfmathsetmacro{\tx}{\qfdNH + (\tk+0.5)*\qfdCmpW/6}
+      \node[anchor=south, font=\scriptsize] at (\tx, 0.02) {\tk};
+    }%
+    \node[anchor=south, font=\scriptsize\bfseries, align=center]
+         at ({\qfdNH + \qfdCmpW/2}, 0.7) {\qfdPerceptionTitle};
+    \node[anchor=north, font=\scriptsize\itshape]
+         at ({\qfdNH + 0.45}, -\qfdNW) {\qfdPoorLabel};
+    \node[anchor=north, font=\scriptsize\itshape]
+         at ({\qfdNH + \qfdCmpW - 0.45}, -\qfdNW) {\qfdExcellentLabel};
+  \fi
+}
+
+\newcommand{\qfdDrawZoneTitles}{%
+  \ifqfdshowimportance
+    \node[rotate=90, anchor=west, font=\footnotesize\bfseries]
+         at ({-\qfdImpW/2}, 0.12) {\qfdImpTitle};
+  \fi
+  \node[font=\scriptsize\bfseries, align=center, text width=\qfdWhatW cm]
+       at ({\qfdLeftEdge + \qfdWhatW/2},
+           {\ifqfdshowroof \qfdHdrH/2 \else 0.6 \fi}) {\qfdWhatsTitle};
+}
+
+\newcommand{\qfdDrawTitle}{%
+  \ifqfdshowtitle
+    \ifx\qfdProjectTitle\empty\else
+      \pgfmathsetmacro{\qfdTitleX}{\qfdNH/2}
+      \pgfmathsetmacro{\qfdTitleY}{\ifqfdshowroof \qfdApexY \else \qfdHdrH \fi + 0.9}
+      \pgfmathsetmacro{\qfdSubW}{\qfdNH + 2}
+      \node[anchor=south, font=\large\bfseries, align=center]
+           at (\qfdTitleX, \qfdTitleY) {\qfdProjectTitle};
+      \ifx\qfdConcept\empty\else
+        \node[anchor=north, font=\footnotesize\itshape, align=center,
+              text width=\qfdSubW cm]
+             at (\qfdTitleX, {\qfdTitleY - 0.1}) {\qfdConcept};
+      \fi
+    \fi
+  \fi
+}
+
+\newcommand{\qfdDrawFrames}{%
+  \begin{scope}[qfdmed]
+    \draw (\qfdLeftEdge, 0) rectangle (\qfdNH, -\qfdNW);
+    \ifqfdshowimportance \draw (-\qfdImpW, 0) -- (-\qfdImpW, -\qfdNW); \fi
+    \draw (0, 0) -- (0, -\qfdNW);
+    \ifqfdshowroof
+      \draw (0, 0) rectangle (\qfdNH, \qfdHdrH); \fi
+    \ifqfdshowbasement
+      \draw (0, -\qfdNW) rectangle (\qfdNH, -\qfdNW-\qfdBasementN); \fi
+    \ifqfdshowcompetitive
+      \draw (\qfdNH, 0) rectangle (\qfdNH+\qfdCmpW, -\qfdNW); \fi
+  \end{scope}
+}
+
+\newcommand{\qfdDrawLegend}{%
+  \ifqfdshowlegend
+    \pgfmathsetmacro{\qfdLegX}{%
+      \qfdNH + \ifqfdshowcompetitive \qfdCmpW + 0.7 \else 0.7 \fi}
+    \pgfmathsetmacro{\qfdLegBottom}{%
+      -2.05
+      \ifqfdshowroof    \ifqfdshowcorrlegend - 2.55 \fi \fi
+      \ifqfdshowcompetitive \ifqfdshowevallegend - 2.20 \fi \fi}
+    \pgfmathsetmacro{\qfdLegY}{\qfdHdrH - 0.4}
+    \begin{scope}[shift={(\qfdLegX, \qfdLegY)}]
+      \draw[qfdmed, rounded corners=2pt]
+        (-0.15, 0.4) rectangle (4.5, \qfdLegBottom);
+      \node[anchor=west, font=\footnotesize\bfseries] at (0, 0.1)
+        {\qfdRelTitle};
+      \draw[qfdthin] (0, -0.15) -- (4.35, -0.15);
+      \node[qfdstrong] at (0.22, -0.5)  {};
+        \node[anchor=west] at (0.5, -0.5)  {Strong (9)};
+      \node[qfdmod]    at (0.22, -0.95) {};
+        \node[anchor=west] at (0.5, -0.95) {Medium (3)};
+      \node[qfdweak]   at (0.22, -1.4)  {};
+        \node[anchor=west] at (0.5, -1.4)  {Weak (1)};
+      \ifqfdshowroof \ifqfdshowcorrlegend
+        \node[anchor=west, font=\footnotesize\bfseries] at (0, -2.10)
+          {\qfdCorrTitle};
+        \draw[qfdthin] (0, -2.35) -- (4.35, -2.35);
+        \node[anchor=west] at (0, -2.70) {{$+\!+$}\quad very positive};
+        \node[anchor=west] at (0, -3.05) {{$+$\phantom{$+$}}\quad positive};
+        \node[anchor=west] at (0, -3.40) {{$-$\phantom{$-$}}\quad negative};
+        \node[anchor=west] at (0, -3.75) {{$-\!-$}\quad very negative};
+      \fi \fi
+      \ifqfdshowcompetitive \ifqfdshowevallegend
+        \pgfmathsetmacro{\qfdEvalTop}{%
+          -2.10 \ifqfdshowroof\ifqfdshowcorrlegend - 2.55 \fi\fi}
+        \node[anchor=west, font=\footnotesize\bfseries]
+          at (0, \qfdEvalTop) {\qfdEvalTitle};
+        \pgfmathsetmacro{\qfdEvalSep}{\qfdEvalTop - 0.25}
+        \draw[qfdthin] (0, \qfdEvalSep) -- (4.35, \qfdEvalSep);
+        \pgfmathsetmacro{\qfdLegA}{\qfdEvalTop - 0.55}
+        \draw[qfdalt1ln] (0.05, \qfdLegA) -- (0.45, \qfdLegA);
+          \node[qfdalt1mk] at (0.25, \qfdLegA) {};
+          \node[anchor=west, font=\bfseries] at (0.55, \qfdLegA)
+            {\qfdAltOneLabel};
+        \pgfmathsetmacro{\qfdLegB}{\qfdEvalTop - 0.95}
+        \draw[qfdalt2ln] (0.05, \qfdLegB) -- (0.45, \qfdLegB);
+          \node[qfdalt2mk] at (0.25, \qfdLegB) {};
+          \node[anchor=west] at (0.55, \qfdLegB) {\qfdAltTwoLabel};
+        \pgfmathsetmacro{\qfdLegC}{\qfdEvalTop - 1.35}
+        \draw[qfdalt3ln] (0.05, \qfdLegC) -- (0.45, \qfdLegC);
+          \node[qfdalt3mk] at (0.25, \qfdLegC) {};
+          \node[anchor=west] at (0.55, \qfdLegC) {\qfdAltThreeLabel};
+      \fi \fi
+    \end{scope}
+  \fi
+}
+
+\newenvironment{qfdhouse}{%
+  \begin{tikzpicture}[x=1cm, y=1cm, font=\scriptsize,
+                      line cap=round, line join=round]
+  \ifqfdshowimportance
+    \pgfmathsetmacro{\qfdLeftEdge}{-\qfdWhatW-\qfdImpW}
+  \else
+    \pgfmathsetmacro{\qfdLeftEdge}{-\qfdWhatW}
+  \fi
+  \pgfmathsetmacro{\qfdApexY}{\qfdHdrH + \qfdNH/2}
+  \pgfmathtruncatemacro{\qfdNHm}{\qfdNH - 1}
+  \pgfmathtruncatemacro{\qfdNWm}{\qfdNW - 1}
+  \qfdDrawGrid
+  \qfdDrawRoof
+  \qfdDrawScale
+  \qfdDrawZoneTitles
+  \qfdDrawTitle
+}{%
+  \qfdDrawFrames
+  \qfdDrawLegend
+  \end{tikzpicture}%
+}
+
+% ---- Overrides for House 2 (Functions × Components) ----
+\def\qfdNW{5}
+\def\qfdNH{6}
+\def\qfdWhatW{4.7}
+\def\qfdHdrH{3.2}
+\def\qfdImpTitle{Weight}
+\def\qfdWhatsTitle{Functions (WHATs)}
+\def\qfdProjectTitle{Dantotsu Print — House 2}
+\def\qfdConcept{Functions (the HOWs of House 1) realised by concrete \textbf{components}.}
+\qfdshowcompetitivefalse
+
+\begin{document}
+\begin{qfdhouse}
+  % WHATs (Functions) + carried-down weights (House 1 relative weights)
+  \pgfmathsetmacro{\qfdWhatTextW}{\qfdWhatW - 0.2}
+  \foreach \r/\t in {1/{F1 Minimise capture effort},
+                     2/{F2 Fidelity \& legibility},
+                     3/{F3 Scope to the cell},
+                     4/{F4 Minimise operating burden},
+                     5/{F5 Durable back-link}}
+    \node[anchor=west, font=\scriptsize, text width=\qfdWhatTextW cm, align=left]
+      at ({\qfdLeftEdge + 0.1}, {-\r + 0.5}) {\t};
+  \foreach \r/\imp in {1/26, 2/26, 3/9, 4/24, 5/16}
+    \node[font=\scriptsize] at ({-\qfdImpW/2}, {-\r + 0.5}) {\imp};
+
+  % HOWs (Components)
+  \foreach \c/\t in {1/{C1 CLI engine}, 2/{C2 Keystroke shims},
+                     3/{C3 Renderer}, 4/{C4 Print service},
+                     5/{C5 Label printer}, 6/{C6 Board registry}}
+    \node[rotate=90, anchor=west, font=\scriptsize] at ({\c - 0.5}, 0.15) {\t};
+
+  % Relations (Function x Component, from the section 6 matrix)
+  \node[qfdrel/S] at ({1 - 0.5}, {-1 + 0.5}) {}; % F1-C1
+  \node[qfdrel/S] at ({2 - 0.5}, {-1 + 0.5}) {}; % F1-C2
+  \node[qfdrel/M] at ({6 - 0.5}, {-1 + 0.5}) {}; % F1-C6
+  \node[qfdrel/M] at ({1 - 0.5}, {-2 + 0.5}) {}; % F2-C1
+  \node[qfdrel/S] at ({3 - 0.5}, {-2 + 0.5}) {}; % F2-C3
+  \node[qfdrel/S] at ({1 - 0.5}, {-3 + 0.5}) {}; % F3-C1
+  \node[qfdrel/M] at ({3 - 0.5}, {-3 + 0.5}) {}; % F3-C3
+  \node[qfdrel/S] at ({4 - 0.5}, {-4 + 0.5}) {}; % F4-C4
+  \node[qfdrel/S] at ({5 - 0.5}, {-4 + 0.5}) {}; % F4-C5
+  \node[qfdrel/M] at ({6 - 0.5}, {-4 + 0.5}) {}; % F4-C6
+  \node[qfdrel/S] at ({1 - 0.5}, {-5 + 0.5}) {}; % F5-C1
+  \node[qfdrel/W] at ({4 - 0.5}, {-5 + 0.5}) {}; % F5-C4
+
+  % Roof correlations (Component x Component)
+  \node[font=\scriptsize] at (C-1-2) {$+\!+$}; % C1-C2 shims wrap the CLI
+  \node[font=\scriptsize] at (C-1-3) {$+\!+$}; % C1-C3 renderer in the CLI
+  \node[font=\scriptsize] at (C-1-4) {$+$};    % C1-C4 CLI POSTs to service
+  \node[font=\scriptsize] at (C-1-6) {$+$};    % C1-C6 CLI reads --board
+  \node[font=\scriptsize] at (C-3-4) {$+$};    % C3-C4 service transports raster
+  \node[font=\scriptsize] at (C-3-5) {$-$};    % C3-C5 mono printer caps renderer
+  \node[font=\scriptsize] at (C-4-5) {$+\!+$}; % C4-C5 service drives printer
+  \node[font=\scriptsize] at (C-4-6) {$+\!+$}; % C4-C6 registry lives in service
+  \node[font=\scriptsize] at (C-5-6) {$+$};    % C5-C6 registry maps board->printer
+
+  % Basement row labels
+  \node[anchor=west, font=\scriptsize] at ({\qfdLeftEdge + 0.1}, {-\qfdNW - 0.5}) {Target};
+  \node[anchor=west, font=\scriptsize] at ({\qfdLeftEdge + 0.1}, {-\qfdNW - 1.5}) {Difficulty (1--5)};
+  \node[anchor=west, font=\scriptsize] at ({\qfdLeftEdge + 0.1}, {-\qfdNW - 2.5}) {Abs.\ weight};
+  \node[anchor=west, font=\scriptsize] at ({\qfdLeftEdge + 0.1}, {-\qfdNW - 3.5}) {Rel.\ weight \%};
+
+  % Basement values
+  \foreach \c/\tgt/\diff/\abs/\rel in
+    {1/{$\leq$1 s}/4/537/33,
+     2/{4 eds}/2/234/14,
+     3/{300 dpi}/4/261/16,
+     4/{route}/3/232/14,
+     5/{102 mm}/1/216/13,
+     6/{board}/2/150/9} {
+    \node[font=\scriptsize] at ({\c - 0.5}, {-\qfdNW - 0.5}) {\tgt};
+    \node[font=\scriptsize] at ({\c - 0.5}, {-\qfdNW - 1.5}) {\diff};
+    \node[font=\scriptsize] at ({\c - 0.5}, {-\qfdNW - 2.5}) {\abs};
+    \node[font=\scriptsize\bfseries] at ({\c - 0.5}, {-\qfdNW - 3.5}) {\rel};
+  }
+\end{qfdhouse}
+\end{document}
+```
+
+**Reading it.** **C1 (33%)** dominates — it realises four of five functions; it is
+the hub, and with **C3 (16%)** carries the build risk (both Difficulty 4). C2/C4/C5
+cluster ~13–14%, C6 trails at 9%. Effort should track weight.
+
+#### House 2 roof — Component × Component
+
+`◎` strong reinforce · `○` mild reinforce · `×` mild conflict.
+
+|        | C1 | C2 | C3 | C4 | C5 | C6 |
+|--------|:--:|:--:|:--:|:--:|:--:|:--:|
+| **C1** | —  | ◎  | ◎  | ○  |    | ○  |
+| **C2** |    | —  |    |    |    |    |
+| **C3** |    |    | —  | ○  | ×  |    |
+| **C4** |    |    |    | —  | ◎  | ◎  |
+| **C5** |    |    |    |    | —  | ○  |
+| **C6** |    |    |    |    |    | —  |
+
+- **C1×C2 (◎), C1×C3 (◎)** — the shims are thin wrappers that invoke the CLI, and the renderer is a library inside it; building the CLI *is* building the seat these sit in.
+- **C4×C5 (◎), C4×C6 (◎)** — the print service drives the printer via `brother_ql` and owns the board→printer registry; one coherent server.
+- **C3×C5 (×) — the one conflict.** A richer renderer is capped by the monochrome ≥300 dpi / 102 mm label: hue and fine detail C3 *could* produce don't survive the print. This is **T2** (§8) made structural — spend renderer effort on legible monochrome, not colour.
+- **Mild reinforces (○):** C1×C4 (CLI POSTs the card), C1×C6 (CLI reads `--board` to route), C3×C4 (service transports C3's raster — they must agree on its spec), C5×C6 (registry maps board→printer IP).
+
+_Watched, not a roof conflict: **C1 (Rust) ↔ C4 (Python)** cooperate to print, but the two runtimes couple across an HTTP contract that must not drift — see **T6** (§8)._
+
+#### House 2 basement — component performance budget
+
+_Abs./Rel. weight are **computed** — §6 matrix × carried-down function weights
+(F1 26, F2 26, F3 9, F4 24, F5 16). **Target** and **Difficulty** are a first
+assessment introduced with this house; revise as ADRs/spikes land._
+
+| Component | Target (now) | Difficulty | Abs. | Rel. % |
+|-----------|--------------|:----------:|:----:|:------:|
+| C1 CLI engine     | single static binary; cold run ≤ ~1 s to emit                        | 4 | 537 | **33** |
+| C3 Renderer       | verbatim mono PNG at 90×85 mm, ~48c×19r @ 8 pt, crisp @300 dpi, span marks | 4 | 261 | **16** |
+| C2 Keystroke shims| one map per editor (Vim/JetBrains/VS Code·Cursor); Xcode clipboard   | 2 | 234 | **14** |
+| C4 Print service  | board→printer route + retries + status; service up                   | 3 | 232 | **14** |
+| C5 Label printer  | Brother QL-1110NWB, 102 mm, ≥300 dpi, removable, networked           | 1 | 216 | **13** |
+| C6 Board registry | `--board` + per-repo/dev default; board→printer map                  | 2 | 150 | **9**  |
+
 ## 7. Critical performance budget
 
 Ranked from §4 importance and §5 conflicts. `If we miss it` is mandatory — a target without a fallback is a wish.
